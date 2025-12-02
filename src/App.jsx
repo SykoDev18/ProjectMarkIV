@@ -15,6 +15,13 @@ import Project from './modules/Project';
 import Knowledge from './modules/Knowledge';
 import Playlists from './modules/Playlists';
 import Posture from './modules/Posture';
+import Style from './modules/Style';
+import Friends from './modules/Friends';
+import Purpose from './modules/Purpose';
+import Hobbies from './modules/Hobbies';
+import Wins from './modules/Wins';
+import Explore from './modules/Explore';
+import Profile from './modules/Profile';
 
 function App() {
   const { data, loading, updateData } = useAppData();
@@ -34,6 +41,8 @@ function App() {
   const renderModule = () => {
     switch (activeTab) {
       case 'dashboard': return <Dashboard data={data} darkMode={darkMode} />;
+      case 'explore': return <Explore onNavigate={setActiveTab} />;
+      case 'profile': return <Profile user={data.user} darkMode={darkMode} toggleTheme={toggleTheme} />;
       case 'habits': return <Habits data={data} updateData={updateData} />;
       case 'gym': return <Gym data={data} updateData={updateData} />;
       case 'finance': return <Finance data={data} updateData={updateData} />;
@@ -45,6 +54,11 @@ function App() {
       case 'knowledge': return <Knowledge data={data} />;
       case 'playlists': return <Playlists data={data} />;
       case 'posture': return <Posture data={data} updateData={updateData} />;
+      case 'style': return <Style data={data} updateData={updateData} />;
+      case 'friends': return <Friends data={data} updateData={updateData} />;
+      case 'purpose': return <Purpose data={data} updateData={updateData} />;
+      case 'hobbies': return <Hobbies data={data} updateData={updateData} />;
+      case 'wins': return <Wins data={data} updateData={updateData} />;
       default: return <Dashboard data={data} darkMode={darkMode} />;
     }
   };

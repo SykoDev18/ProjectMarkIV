@@ -91,6 +91,30 @@ const INITIAL_DATA = {
       { id: 2, text: "Mentón paralelo al suelo", done: false }
     ],
     reminderEnabled: false
+  },
+  style: {
+    outfits: [],
+    tips: ["Regla de 3 colores", "Zapatos limpios siempre"],
+    shoppingList: []
+  },
+  friends: {
+    list: [
+      { id: 1, name: "Ejemplo Amigo", lastInteraction: new Date().toISOString(), notes: "Llamar pronto" }
+    ]
+  },
+  purpose: {
+    values: "Honestidad, Disciplina, Libertad",
+    vision: "Ser la mejor versión de mí mismo.",
+    mission: "Ayudar a otros a crecer."
+  },
+  hobbies: {
+    list: [
+      { id: 1, name: "Guitarra", progress: 20, lastSession: new Date().toISOString() }
+    ]
+  },
+  wins: {
+    history: [],
+    stars: 0
   }
 };
 

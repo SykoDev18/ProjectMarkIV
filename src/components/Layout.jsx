@@ -3,39 +3,44 @@ import { motion } from 'framer-motion';
 import IOSHeader from './ui/IOSHeader';
 import { 
   LayoutGrid, 
-  Dumbbell, 
-  Wallet, 
-  ShieldCheck, 
-  Brain, 
-  MessageCircle, 
-  Heart, 
-  Briefcase, 
-  BookOpen, 
-  Music, 
+  Compass, 
   User,
-  Droplets,
+  ChevronLeft,
   Moon,
   Sun
 } from 'lucide-react';
 
-const NAV_ITEMS = [
+const BOTTOM_NAV_ITEMS = [
   { id: 'dashboard', icon: LayoutGrid, label: 'Inicio' },
-  { id: 'habits', icon: Droplets, label: 'Hábitos' },
-  { id: 'gym', icon: Dumbbell, label: 'Gym' },
-  { id: 'finance', icon: Wallet, label: 'Finanzas' },
-  { id: 'security', icon: ShieldCheck, label: 'Seguridad' },
-  { id: 'overthinking', icon: Brain, label: 'Calma' },
-  { id: 'dialogue', icon: MessageCircle, label: 'Diálogo' },
-  { id: 'gratitude', icon: Heart, label: 'Gratitud' },
-  { id: 'project', icon: Briefcase, label: 'Proyecto' },
-  { id: 'knowledge', icon: BookOpen, label: 'Saber' },
-  { id: 'playlists', icon: Music, label: 'Música' },
-  { id: 'posture', icon: User, label: 'Postura' },
+  { id: 'explore', icon: Compass, label: 'Explorar' },
+  { id: 'profile', icon: User, label: 'Perfil' },
 ];
+
+// Map of tool IDs to their display labels for the header
+const TOOL_LABELS = {
+  habits: 'Hábitos',
+  gym: 'Gym',
+  finance: 'Finanzas',
+  style: 'Estilo',
+  friends: 'Amigos',
+  purpose: 'Propósito',
+  hobbies: 'Hobbies',
+  wins: 'Logros',
+  security: 'Seguridad',
+  overthinking: 'Calma',
+  dialogue: 'Diálogo',
+  gratitude: 'Gratitud',
+  project: 'Proyecto',
+  knowledge: 'Saber',
+  playlists: 'Música',
+  posture: 'Postura'
+};
 
 export default function Layout({ children, activeTab, onTabChange, darkMode, toggleTheme }) {
   const today = new Date();
   const dateString = today.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' }).toUpperCase();
+
+  const isMainTab = BOTTOM_NAV_ITEMS.some(item => item.id === activeTab);
 
   const getHeaderProps = () => {
     if (activeTab === 'dashboard') {
@@ -52,8 +57,18 @@ export default function Layout({ children, activeTab, onTabChange, darkMode, tog
         )
       };
     }
+    if (activeTab === 'explore') return { title: 'Explorar' };
+    if (activeTab === 'profile') return { title: 'Perfil' };
+
+    // Sub-modules
     return {
-      title: NAV_ITEMS.find(i => i.id === activeTab)?.label || 'App'
+      title: TOOL_LABELS[activeTab] || 'App',
+      leftAction: (
+        <button onClick={() => onTabChange('explore')} className="flex items-center text-blue-500">
+          <ChevronLeft size={24} />
+          <span className="text-lg">Atrás</span>
+        </button>
+      )
     };
   };
 
@@ -61,7 +76,7 @@ export default function Layout({ children, activeTab, onTabChange, darkMode, tog
 
   return (
     <div className={`min-h-screen font-sans selection:bg-blue-500/30 pb-24 transition-colors duration-300 ${darkMode ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'}`}>
-      {darkMode && <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-black to-black -z-10" />}
+      {darkMode && <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,var(--tw-gradient-stops))] from-blue-900/20 via-black to-black -z-10" />}
       
       <IOSHeader {...headerProps} />
 
@@ -71,9 +86,11 @@ export default function Layout({ children, activeTab, onTabChange, darkMode, tog
 
       {/* Bottom Navigation Bar - iOS Style */}
       <div className={`fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t pb-6 pt-2 px-4 z-50 transition-colors duration-300 ${darkMode ? 'bg-black/80 border-white/10' : 'bg-white/80 border-gray-200'}`}>
-        <div className="flex overflow-x-auto no-scrollbar gap-6 justify-start md:justify-center items-center h-16 px-2">
-          {NAV_ITEMS.map((item) => {
-            const isActive = activeTab === item.id;
+        <div className="flex justify-around items-center h-16 px-2">
+          {BOTTOM_NAV_ITEMS.map((item) => {
+            // Highlight 'explore' if we are in a sub-module
+            const isActive = activeTab === item.id || (item.id === 'explore' && !isMainTab);
+            
             return (
               <button
                 key={item.id}
