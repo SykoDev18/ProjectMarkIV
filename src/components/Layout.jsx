@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import IOSHeader from './ui/IOSHeader';
 import { 
   LayoutGrid, 
   Compass, 
@@ -38,47 +37,73 @@ const TOOL_LABELS = {
 
 export default function Layout({ children, activeTab, onTabChange, darkMode, toggleTheme }) {
   const today = new Date();
-  const dateString = today.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' }).toUpperCase();
+  const dateString = today.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' }).toUpperCase();
 
   const isMainTab = BOTTOM_NAV_ITEMS.some(item => item.id === activeTab);
 
-  const getHeaderProps = () => {
+  const getHeaderContent = () => {
     if (activeTab === 'dashboard') {
       return {
         title: 'Resumen',
         subtitle: dateString,
-        rightAction: (
-          <button 
-            onClick={toggleTheme}
-            className={`p-2 rounded-full transition-colors ${darkMode ? 'bg-gray-800 text-yellow-400' : 'bg-gray-200 text-gray-600'}`}
-          >
-            {darkMode ? <Moon size={20} /> : <Sun size={20} />}
-          </button>
-        )
+        showTheme: true,
+        showBack: false
       };
     }
-    if (activeTab === 'explore') return { title: 'Explorar' };
-    if (activeTab === 'profile') return { title: 'Perfil' };
+    if (activeTab === 'explore') return { title: 'Explorar', showBack: false };
+    if (activeTab === 'profile') return { title: 'Perfil', showBack: false };
 
     // Sub-modules
     return {
       title: TOOL_LABELS[activeTab] || 'App',
-      leftAction: (
-        <button onClick={() => onTabChange('explore')} className="flex items-center text-blue-500">
-          <ChevronLeft size={24} />
-          <span className="text-lg">Atrás</span>
-        </button>
-      )
+      showBack: true
     };
   };
 
-  const headerProps = getHeaderProps();
+  const headerContent = getHeaderContent();
 
   return (
     <div className={`min-h-screen font-sans selection:bg-blue-500/30 pb-24 transition-colors duration-300 ${darkMode ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'}`}>
       {darkMode && <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,var(--tw-gradient-stops))] from-blue-900/20 via-black to-black -z-10" />}
       
-      <IOSHeader {...headerProps} />
+      {/* Custom Header */}
+      <header className="fixed top-0 left-0 right-0 z-40 backdrop-blur-xl bg-black/60 border-b border-white/10">
+        <div className="max-w-md mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            {headerContent.showBack ? (
+              <button 
+                onClick={() => onTabChange('explore')} 
+                className="flex items-center text-blue-500 hover:text-blue-400 transition-colors"
+              >
+                <ChevronLeft size={24} />
+                <span className="text-base">Atrás</span>
+              </button>
+            ) : (
+              <div>
+                {headerContent.subtitle && (
+                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">{headerContent.subtitle}</p>
+                )}
+                <h1 className="text-2xl font-bold tracking-tight">{headerContent.title}</h1>
+              </div>
+            )}
+            
+            {headerContent.showBack && (
+              <h1 className="text-xl font-bold">{headerContent.title}</h1>
+            )}
+            
+            {headerContent.showTheme && (
+              <button 
+                onClick={toggleTheme}
+                className={`p-2 rounded-full transition-colors ${darkMode ? 'bg-gray-800 text-yellow-400' : 'bg-gray-200 text-gray-600'}`}
+              >
+                {darkMode ? <Moon size={20} /> : <Sun size={20} />}
+              </button>
+            )}
+            
+            {headerContent.showBack && <div className="w-8" />}
+          </div>
+        </div>
+      </header>
 
       <main className="pt-24 px-4 max-w-md mx-auto space-y-6">
         {children}

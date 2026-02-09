@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import IOSCard from '../components/ui/IOSCard';
 import IOSButton from '../components/ui/IOSButton';
-import { Brain, AlertTriangle, Wind, Clock } from 'lucide-react';
+import { Brain, AlertTriangle, Wind, Clock, Save, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { triggerHaptic } from '../utils';
 
 export default function Overthinking({ data, updateData }) {
   const [breathing, setBreathing] = useState(false);
   const [breathText, setBreathText] = useState('Inhala');
   const [worryTimer, setWorryTimer] = useState(0);
   const [isWorrying, setIsWorrying] = useState(false);
+  const [thoughtRecord, setThoughtRecord] = useState({ thought: '', forEvidence: '', againstEvidence: '' });
+  const [savedThoughts, setSavedThoughts] = useState([]);
 
   useEffect(() => {
     if (breathing) {
@@ -27,8 +30,9 @@ export default function Overthinking({ data, updateData }) {
     let interval;
     if (isWorrying && worryTimer > 0) {
       interval = setInterval(() => setWorryTimer(t => t - 1), 1000);
-    } else if (worryTimer === 0) {
+    } else if (worryTimer === 0 && isWorrying) {
       setIsWorrying(false);
+      triggerHaptic();
     }
     return () => clearInterval(interval);
   }, [isWorrying, worryTimer]);
@@ -36,7 +40,26 @@ export default function Overthinking({ data, updateData }) {
   if (!data) return null;
 
   const toggleEmergency = () => {
-    updateData('overthinking.emergencyMode', !data.overthinking.emergencyMode);
+    triggerHaptic();
+    updateData('overthinking', { ...data.overthinking, emergencyMode: !data.overthinking.emergencyMode });
+  };
+
+  const saveThoughtRecord = () => {
+    if (!thoughtRecord.thought.trim()) return;
+    triggerHaptic();
+    const newRecord = {
+      id: Date.now(),
+      ...thoughtRecord,
+      date: new Date().toLocaleDateString(),
+      resolved: false
+    };
+    setSavedThoughts([newRecord, ...savedThoughts]);
+    setThoughtRecord({ thought: '', forEvidence: '', againstEvidence: '' });
+  };
+
+  const deleteThought = (id) => {
+    triggerHaptic();
+    setSavedThoughts(savedThoughts.filter(t => t.id !== id));
   };
 
   return (
@@ -151,14 +174,64 @@ export default function Overthinking({ data, updateData }) {
             <IOSCard>
                <h3 className="font-bold mb-4 flex gap-2 items-center"><Brain size={18} /> Registro de Pensamientos</h3>
                <div className="space-y-3">
-                  <input placeholder="Pensamiento Intrusivo..." className="w-full p-3 rounded-xl bg-gray-900 border border-gray-700 text-white text-sm outline-none focus:border-blue-500" />
+                  <input 
+                    value={thoughtRecord.thought}
+                    onChange={(e) => setThoughtRecord({...thoughtRecord, thought: e.target.value})}
+                    placeholder="Pensamiento Intrusivo..." 
+                    className="w-full p-3 rounded-xl bg-gray-900 border border-gray-700 text-white text-sm outline-none focus:border-blue-500" 
+                  />
                   <div className="grid grid-cols-2 gap-2">
-                     <textarea placeholder="Evidencia A FAVOR" className="p-3 rounded-xl bg-gray-900 border border-gray-700 text-white text-xs h-20 resize-none outline-none focus:border-blue-500" />
-                     <textarea placeholder="Evidencia EN CONTRA" className="p-3 rounded-xl bg-gray-900 border border-gray-700 text-white text-xs h-20 resize-none outline-none focus:border-blue-500" />
+                     <textarea 
+                       value={thoughtRecord.forEvidence}
+                       onChange={(e) => setThoughtRecord({...thoughtRecord, forEvidence: e.target.value})}
+                       placeholder="Evidencia A FAVOR" 
+                       className="p-3 rounded-xl bg-gray-900 border border-gray-700 text-white text-xs h-20 resize-none outline-none focus:border-blue-500" 
+                     />
+                     <textarea 
+                       value={thoughtRecord.againstEvidence}
+                       onChange={(e) => setThoughtRecord({...thoughtRecord, againstEvidence: e.target.value})}
+                       placeholder="Evidencia EN CONTRA" 
+                       className="p-3 rounded-xl bg-gray-900 border border-gray-700 text-white text-xs h-20 resize-none outline-none focus:border-blue-500" 
+                     />
                   </div>
-                  <IOSButton size="lg" variant="primary" className="w-full">Guardar Análisis</IOSButton>
+                  <IOSButton 
+                    size="lg" 
+                    variant="primary" 
+                    className="w-full"
+                    onClick={saveThoughtRecord}
+                  >
+                    <Save size={16} className="mr-2" /> Guardar Análisis
+                  </IOSButton>
                </div>
             </IOSCard>
+
+            {/* Saved Thoughts */}
+            {savedThoughts.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-400 ml-1">Pensamientos Analizados</h3>
+                {savedThoughts.map(thought => (
+                  <IOSCard key={thought.id} className="bg-gray-900/50">
+                    <div className="flex justify-between items-start mb-2">
+                      <p className="text-sm font-medium text-white">{thought.thought}</p>
+                      <button onClick={() => deleteThought(thought.id)} className="text-gray-500 hover:text-red-400 p-1">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-red-900/20 p-2 rounded-lg">
+                        <span className="text-red-400 font-medium block mb-1">A favor:</span>
+                        <span className="text-gray-400">{thought.forEvidence || '-'}</span>
+                      </div>
+                      <div className="bg-green-900/20 p-2 rounded-lg">
+                        <span className="text-green-400 font-medium block mb-1">En contra:</span>
+                        <span className="text-gray-400">{thought.againstEvidence || '-'}</span>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-gray-500 mt-2">{thought.date}</p>
+                  </IOSCard>
+                ))}
+              </div>
+            )}
         </div>
       )}
     </div>

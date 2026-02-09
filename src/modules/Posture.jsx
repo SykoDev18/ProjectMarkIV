@@ -1,23 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
 import IOSCard from '../components/ui/IOSCard';
 import IOSButton from '../components/ui/IOSButton';
-import { User, Check } from 'lucide-react';
+import { User, Check, Plus, Trash2, X, RotateCcw } from 'lucide-react';
 import { triggerHaptic } from '../utils';
 
 export default function Posture({ data, updateData }) {
+  const [showAdd, setShowAdd] = useState(false);
+  const [newCheck, setNewCheck] = useState('');
+
   if (!data) return null;
 
   const toggleCheck = (id) => {
     triggerHaptic();
-    const checks = [...data.posture.checks];
-    const index = checks.findIndex(c => c.id === id);
-    checks[index].done = !checks[index].done;
-    updateData('posture.checks', checks);
+    const checks = data.posture.checks.map(c => 
+      c.id === id ? { ...c, done: !c.done } : c
+    );
+    updateData('posture', { ...data.posture, checks });
   };
 
   const toggleReminder = () => {
     triggerHaptic();
-    updateData('posture.reminderEnabled', !data.posture.reminderEnabled);
+    updateData('posture', { ...data.posture, reminderEnabled: !data.posture.reminderEnabled });
+  };
+
+  const addCheck = () => {
+    if (!newCheck.trim()) return;
+    triggerHaptic();
+    const newItem = { id: Date.now(), text: newCheck, done: false };
+    updateData('posture', { 
+      ...data.posture, 
+      checks: [...data.posture.checks, newItem] 
+    });
+    setNewCheck('');
+    setShowAdd(false);
+  };
+
+  const deleteCheck = (id) => {
+    triggerHaptic();
+    const newChecks = data.posture.checks.filter(c => c.id !== id);
+    updateData('posture', { ...data.posture, checks: newChecks });
+  };
+
+  const resetChecks = () => {
+    triggerHaptic();
+    const resetList = data.posture.checks.map(c => ({ ...c, done: false }));
+    updateData('posture', { ...data.posture, checks: resetList });
+  };
+
+  const getProgress = () => {
+    if (!data.posture.checks.length) return 0;
+    return Math.round((data.posture.checks.filter(c => c.done).length / data.posture.checks.length) * 100);
   };
 
   return (
@@ -31,6 +63,13 @@ export default function Posture({ data, updateData }) {
         <p className="text-gray-400 text-sm mt-2">
             Tu lenguaje corporal grita lo que tu boca calla.
         </p>
+        <div className="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden max-w-xs mx-auto">
+          <div 
+            className="h-full bg-blue-500 transition-all duration-500"
+            style={{ width: `${getProgress()}%` }}
+          />
+        </div>
+        <p className="text-xs text-gray-500 mt-2">{getProgress()}% completado</p>
       </div>
 
       <IOSCard>
@@ -49,15 +88,50 @@ export default function Posture({ data, updateData }) {
       </IOSCard>
 
       <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <h3 className="text-sm font-semibold text-gray-400 ml-1">Checks de Postura</h3>
+          <div className="flex gap-2">
+            <IOSButton size="sm" variant="ghost" onClick={resetChecks}>
+              <RotateCcw size={14} />
+            </IOSButton>
+            <IOSButton size="sm" variant="ghost" onClick={() => setShowAdd(!showAdd)}>
+              {showAdd ? <X size={18} /> : <Plus size={18} />}
+            </IOSButton>
+          </div>
+        </div>
+
+        {showAdd && (
+          <div className="flex gap-2 animate-in fade-in slide-in-from-top-4">
+            <input 
+              value={newCheck}
+              onChange={(e) => setNewCheck(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addCheck()}
+              placeholder="Nuevo check de postura..."
+              className="flex-1 p-3 rounded-xl bg-gray-900 border border-gray-700 text-white text-sm outline-none focus:border-blue-500"
+              autoFocus
+            />
+            <IOSButton onClick={addCheck} variant="primary">Añadir</IOSButton>
+          </div>
+        )}
+
         {data.posture.checks.map(check => (
             <IOSButton 
                 key={check.id} 
-                onClick={() => toggleCheck(check.id)}
                 variant="secondary"
-                className={`w-full flex justify-between items-center ${check.done ? 'bg-blue-900/20 border-blue-500/30' : ''}`}
+                className={`w-full flex justify-between items-center ${check.done ? 'bg-blue-900/20 border-blue-500/30' : ''} group`}
             >
-                <span>{check.text}</span>
-                {check.done && <Check size={16} className="text-blue-400" />}
+                <span onClick={() => toggleCheck(check.id)} className="flex-1 text-left cursor-pointer">
+                  {check.text}
+                </span>
+                <div className="flex items-center gap-2">
+                  {check.done && <Check size={16} className="text-blue-400" />}
+                  <button 
+                    onClick={() => deleteCheck(check.id)}
+                    className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-opacity p-1"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
             </IOSButton>
         ))}
       </div>

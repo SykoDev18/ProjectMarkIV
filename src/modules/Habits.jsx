@@ -1,7 +1,7 @@
 import React from 'react';
 import IOSCard from '../components/ui/IOSCard';
 import IOSButton from '../components/ui/IOSButton';
-import { Droplets, Check, Moon, Book, Smile, Activity, Sun, Heart } from 'lucide-react';
+import { Droplets, Check, Moon, Book, Smile, Activity, Sun, Heart, RotateCcw, Minus } from 'lucide-react';
 import { triggerHaptic } from '../utils';
 
 export default function Habits({ data, updateData }) {
@@ -9,15 +9,43 @@ export default function Habits({ data, updateData }) {
 
   const toggleHabit = (key) => {
     triggerHaptic();
-    updateData(`habits.${key}.done`, !data.habits[key].done);
+    const newHabits = { ...data.habits };
+    newHabits[key] = { ...newHabits[key], done: !newHabits[key].done };
+    updateData('habits', newHabits);
   };
 
   const addWater = () => {
     triggerHaptic();
     const current = data.habits.water.current;
     if (current < data.habits.water.target) {
-        updateData('habits.water.current', current + 1);
+      const newHabits = { ...data.habits };
+      newHabits.water = { ...newHabits.water, current: current + 1 };
+      updateData('habits', newHabits);
     }
+  };
+
+  const removeWater = () => {
+    triggerHaptic();
+    const current = data.habits.water.current;
+    if (current > 0) {
+      const newHabits = { ...data.habits };
+      newHabits.water = { ...newHabits.water, current: current - 1 };
+      updateData('habits', newHabits);
+    }
+  };
+
+  const resetAllHabits = () => {
+    triggerHaptic();
+    const resetHabits = {
+      water: { ...data.habits.water, current: 0 },
+      gym: { done: false },
+      reading: { done: false },
+      meditation: { done: false },
+      sleep: { done: false },
+      skincare: { done: false },
+      emotional: { done: false }
+    };
+    updateData('habits', resetHabits);
   };
 
   const habitsConfig = [
@@ -42,9 +70,14 @@ export default function Habits({ data, updateData }) {
               <p className="text-xs text-blue-300">Vasos de agua</p>
             </div>
           </div>
-          <IOSButton onClick={addWater} variant="primary" className="w-12 h-12 rounded-full !p-0 flex items-center justify-center">
-            <span className="text-xl">+</span>
-          </IOSButton>
+          <div className="flex items-center gap-2">
+            <IOSButton onClick={removeWater} variant="secondary" className="w-10 h-10 rounded-full !p-0 flex items-center justify-center">
+              <Minus size={18} />
+            </IOSButton>
+            <IOSButton onClick={addWater} variant="primary" className="w-12 h-12 rounded-full !p-0 flex items-center justify-center">
+              <span className="text-xl">+</span>
+            </IOSButton>
+          </div>
         </div>
         {/* Water Progress Bar */}
         <div className="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
@@ -54,6 +87,11 @@ export default function Habits({ data, updateData }) {
             />
         </div>
       </IOSCard>
+
+      {/* Reset Button */}
+      <IOSButton onClick={resetAllHabits} variant="ghost" className="w-full flex items-center justify-center gap-2 text-gray-400 hover:text-white">
+        <RotateCcw size={16} /> Reiniciar hábitos del día
+      </IOSButton>
 
       <div className="grid grid-cols-1 gap-3">
         {habitsConfig.map((habit) => {

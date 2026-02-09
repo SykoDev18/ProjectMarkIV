@@ -174,13 +174,32 @@ export const useAppData = () => {
 
   const updateData = async (path, value) => {
     if (!user || !data) return;
-    const newData = { ...data, [path]: value };
-    setData(newData); 
+    
+    // Handle nested paths like 'habits.water.current'
+    const pathParts = path.split('.');
+    const newData = { ...data };
+    
+    if (pathParts.length === 1) {
+      newData[path] = value;
+    } else {
+      let current = newData;
+      for (let i = 0; i < pathParts.length - 1; i++) {
+        current[pathParts[i]] = { ...current[pathParts[i]] };
+        current = current[pathParts[i]];
+      }
+      current[pathParts[pathParts.length - 1]] = value;
+    }
+    
+    setData(newData);
     
     if (firebaseConfig.apiKey === 'demo') return;
 
     try {
-      await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'v3_state'), { [path]: value }, { merge: true });
+      // For nested paths, we need to send the correct structure to Firestore
+      const updateObj = pathParts.length === 1 
+        ? { [path]: value }
+        : { [pathParts[0]]: newData[pathParts[0]] };
+      await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'v3_state'), updateObj, { merge: true });
     } catch (e) { console.error(e); }
   };
 
