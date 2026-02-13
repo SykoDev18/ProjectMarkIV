@@ -67,7 +67,8 @@ const INITIAL_DATA = {
   },
   playlists: {
     items: [
-       { id: 1, name: "Modo Bestia", url: "https://open.spotify.com/playlist/37i9dQZF1DXdxcBWuJkbcy", platform: 'spotify' }
+       { id: 1, name: "Modo Bestia", url: "https://open.spotify.com/playlist/37i9dQZF1DXdxcBWuJkbcy", platform: 'spotify' },
+       { id: 2, name: "Mi Playlist", url: "https://open.spotify.com/playlist/3UBkDCNmNM0YJgRhqllUTY", platform: 'spotify' }
     ]
   },
   security: {
@@ -115,6 +116,11 @@ const INITIAL_DATA = {
   wins: {
     history: [],
     stars: 0
+  },
+  agenda: {
+    events: [
+      { id: 1, title: 'Ejemplo: Reunión', date: new Date().toISOString().split('T')[0], startTime: '10:00', endTime: '11:00', color: 'bg-blue-500', category: 'work', allDay: false }
+    ]
   }
 };
 

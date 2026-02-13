@@ -15,11 +15,13 @@ import {
   Trophy,
   MessageCircle,
   Heart,
-  User
+  User,
+  CalendarDays
 } from 'lucide-react';
 import IOSCard from '../components/ui/IOSCard';
 
 const TOOLS = [
+  { id: 'agenda', icon: CalendarDays, label: 'Agenda', color: 'text-cyan-500' },
   { id: 'gym', icon: Dumbbell, label: 'Gym', color: 'text-orange-500' },
   { id: 'habits', icon: Droplets, label: 'Hábitos', color: 'text-green-500' },
   { id: 'finance', icon: Wallet, label: 'Finanzas', color: 'text-blue-500' },

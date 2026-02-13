@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 
 // Modules
 import Dashboard from './modules/Dashboard';
+import Agenda from './modules/Agenda';
 import Habits from './modules/Habits';
 import Gym from './modules/Gym';
 import Finance from './modules/Finance';
@@ -59,6 +60,7 @@ function App() {
       case 'purpose': return <Purpose data={data} updateData={updateData} />;
       case 'hobbies': return <Hobbies data={data} updateData={updateData} />;
       case 'wins': return <Wins data={data} updateData={updateData} />;
+      case 'agenda': return <Agenda data={data} updateData={updateData} />;
       default: return <Dashboard data={data} darkMode={darkMode} />;
     }
   };

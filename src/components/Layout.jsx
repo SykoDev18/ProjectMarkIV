@@ -17,6 +17,7 @@ const BOTTOM_NAV_ITEMS = [
 
 // Map of tool IDs to their display labels for the header
 const TOOL_LABELS = {
+  agenda: 'Agenda',
   habits: 'Hábitos',
   gym: 'Gym',
   finance: 'Finanzas',
