@@ -6,7 +6,7 @@ import Layout from './components/Layout';
 import Dashboard from './modules/Dashboard';
 import Agenda from './modules/Agenda';
 import Habits from './modules/Habits';
-import Gym from './modules/Gym';
+import GymView from './features/gym/GymView';
 import Finance from './modules/Finance';
 import Security from './modules/Security';
 import Overthinking from './modules/Overthinking';
@@ -45,7 +45,7 @@ function App() {
       case 'explore': return <Explore onNavigate={setActiveTab} />;
       case 'profile': return <Profile user={data.user} darkMode={darkMode} toggleTheme={toggleTheme} />;
       case 'habits': return <Habits data={data} updateData={updateData} />;
-      case 'gym': return <Gym data={data} updateData={updateData} />;
+      case 'gym': return <GymView />;
       case 'finance': return <Finance data={data} updateData={updateData} />;
       case 'security': return <Security data={data} updateData={updateData} />;
       case 'overthinking': return <Overthinking data={data} updateData={updateData} />;

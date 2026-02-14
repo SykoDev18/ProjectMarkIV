@@ -1,35 +1,17 @@
 import { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
+import { auth, db, APP_ID } from '../firebase/config';
 import { 
-  getAuth, 
   signInAnonymously, 
   onAuthStateChanged,
   signInWithCustomToken 
 } from 'firebase/auth';
 import { 
-  getFirestore, 
   doc, 
   setDoc, 
   onSnapshot
 } from 'firebase/firestore';
 
-// --- FIREBASE CONFIGURATION ---
-const firebaseConfig = {
-  apiKey: "AIzaSyC3ELOtnOI7vA1GspU8qqq8r3DsBnFROsk",
-  authDomain: "projectmark-1c794.firebaseapp.com",
-  projectId: "projectmark-1c794",
-  storageBucket: "projectmark-1c794.firebasestorage.app",
-  messagingSenderId: "80818680137",
-  appId: "1:80818680137:web:2cf07364f5d9a948942a98",
-  measurementId: "G-Z77ZX19XDE"
-};
-
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = 'marco-tracker';
+const appId = APP_ID;
 
 const INITIAL_DATA = {
   habits: {
